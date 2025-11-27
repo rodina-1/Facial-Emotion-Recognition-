@@ -154,6 +154,9 @@ We generated:
 
 ✔ Confusion Matrix
 
+<img width="935" height="790" alt="image" src="https://github.com/user-attachments/assets/1e63d4ac-5d04-46ed-9ca5-5c13e30d3ae6" />
+
+
 ✔ Grad-CAM heatmaps
 
 → Showing which facial regions the model focuses on when predicting emotions.
