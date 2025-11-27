@@ -88,8 +88,11 @@ test_transforms = transforms.Compose([
     Normalize([0.5], [0.5])
 ])
 ✔ Normalization
+
 ✔ Data Augmentation
+
 ✔ Grayscale conversion
+
 ✔ Image resizing
 
 ##  **Model Architectures**
@@ -111,8 +114,11 @@ test_transforms = transforms.Compose([
 
 Swin Transformer introduces:
 ✔ Hierarchical representation
+
 ✔ Shifted window mechanism
+
 ✔ Strong performance on image classification tasks
+
 ✔ Better handling of spatial dependencies
 
 ->This model dramatically improved accuracy and per-class metrics.
@@ -135,8 +141,11 @@ Hardware: NVIDIA T4 GPU
 Most Confused Emotion Pairs
 
 Happy → Neutral : 47
+
 Neutral → Sad : 46
+
 Sad → Neutral : 38
+
 Disgust → Neutral : 20
 
 ## **Confusion Matrix & Explainability**
@@ -144,52 +153,77 @@ Disgust → Neutral : 20
 We generated:
 
 ✔ Confusion Matrix
+
 ✔ Grad-CAM heatmaps
+
 → Showing which facial regions the model focuses on when predicting emotions.
 
 This enhances model interpretability and supports academic discussion.
 
 ## **Team Contributions**
-Rodina Hesham
+**Rodina Hesham**
 
-Data Cleaning
-Preprocessing
-Augmentation
-Dataset Splitting
-Exploratory Data Analysis
+-Data Cleaning
 
-Tasneem Yasser
+-Preprocessing
 
-CNN model building
-Swin Transformer fine-tuning
-Training loop
-Loss & optimizer configuration
+-Augmentation
 
-Mai Hussein
+-Dataset Splitting
+
+-Exploratory Data Analysis
+
+
+**Tasneem Yasser**
+
+-CNN model building
+
+-Swin Transformer fine-tuning
+
+-Training loop
+
+-Loss & optimizer configuration
+
+**Mai Hussein**
 Evaluation metrics
-Accuracy
-Precision
-Recall
-F1-score
-Confusion Matrix
-Grad-CAM explainability
 
-Maryhan Sabry
-Deployment
-Streamlit GUI
-User interface
-Model inference pipeline
+-Accuracy
+
+-Precision
+
+-Recall
+
+-F1-score
+
+-Confusion Matrix
+
+-Grad-CAM explainability
+
+**Maryhan Sabry**
+
+-Deployment
+-Streamlit GUI
+-User interface
+-Model inference pipeline
 
 ## **Technologies Used**
 
 -Python
+
 -PyTorch
+
 -Torchvision
+
 -Matplotlib
+
 -Streamlit
+
 -Scikit-learn
+
 -seaborn
+
 -Jupyter Notebook
+
 -GPU: NVIDIA T4
 
 
