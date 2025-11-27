@@ -205,9 +205,13 @@ Evaluation metrics
 **Maryhan Sabry**
 
 -Deployment
+
 -Streamlit GUI
+
 -User interface
+
 -Model inference pipeline
+
 
 ## **Technologies Used**
 
