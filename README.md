@@ -95,11 +95,15 @@ test_transforms = transforms.Compose([
 ##  **Model Architectures**
 1️⃣ Baseline CNN (Initial Experiment)
 
-**Simple convolutional layers**
-**ReLU activation**
-**MaxPooling**
-**Fully connected head**
-**Achieved ~62% accuracy**
+-Simple convolutional layers
+
+-ReLU activation
+
+-MaxPooling
+
+-Fully connected head
+
+-Achieved ~62% accuracy
 
 ->The CNN served as a baseline but didn’t generalize well due to dataset complexity.
 
