@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Recognition - AI Powered</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <span class="text-5xl">✨</span>
+                <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Emotion Recognition
+                </h1>
+            </div>
+            <p class="text-gray-600 text-lg">
+                Powered by SWIN Transformer Deep Learning
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            
+            <!-- Left Panel - Upload/Camera -->
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Capture Face</h2>
+
+                <!-- Initial Buttons -->
+                <div id="initialButtons" class="space-y-4">
+                    <button onclick="uploadImage()" class="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-6 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <span class="text-xl">📤</span>
+                        Upload Image
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+
+                    <button onclick="startCamera()" class="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <span class="text-xl">📷</span>
+                        Use Camera
+                    </button>
+
+                    <div class="mt-8 p-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-dashed border-purple-300">
+                        <div class="text-6xl text-center mb-3">📸</div>
+                        <p class="text-center text-gray-600 font-medium">Choose an option above to get started</p>
+                    </div>
+                </div>
+
+                <!-- Camera View -->
+                <div id="cameraView" style="display: none;">
+                    <video id="videoElement" autoplay playsinline class="w-full rounded-xl shadow-lg mb-4"></video>
+                    <div class="flex gap-3">
+                        <button onclick="capturePhoto()" class="flex-1 bg-green-600 text-white py-3 px-6 rounded-xl hover:bg-green-700 transition-all shadow-lg font-medium">
+                            📷 Capture Photo
+                        </button>
+                        <button onclick="stopCamera()" class="flex-1 bg-red-600 text-white py-3 px-6 rounded-xl hover:bg-red-700 transition-all shadow-lg font-medium">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div id="previewSection" style="display: none;">
+                    <div class="relative">
+                        <img id="previewImage" class="w-full rounded-xl shadow-lg" />
+                        <button onclick="reset()" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-all shadow-lg">
+                            ✕
+                        </button>
+                    </div>
+                    
+                    <!-- Loading -->
+                    <div id="loadingIndicator" style="display: none;" class="flex items-center justify-center gap-3 py-4 mt-4">
+                        <div class="w-6 h-6 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-gray-600 font-medium">Analyzing expression...</span>
+                    </div>
+                </div>
+
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+
+            <!-- Right Panel - Results -->
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Results</h2>
+
+                <!-- Error Message -->
+                <div id="errorMessage" style="display: none;" class="bg-red-50 border-2 border-red-300 rounded-xl p-4 mb-4">
+                    <p class="text-red-600 font-medium">⚠️ <span id="errorText"></span></p>
+                    <p class="text-red-500 text-sm mt-2">Make sure the backend is running at http://localhost:8000</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="flex flex-col items-center justify-center h-full py-12 text-center">
+                    <div class="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mb-4">
+                        <span class="text-5xl">✨</span>
+                    </div>
+                    <p class="text-gray-400 text-lg">Upload an image or use your camera to detect emotions</p>
+                </div>
+
+                <!-- Results -->
+                <div id="resultsSection" style="display: none;" class="space-y-6 fade-in">
+                    <!-- Main Prediction -->
+                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-6 shadow-lg transform transition-all hover:scale-105">
+                        <p class="text-sm font-medium opacity-90 mb-2">Detected Emotion</p>
+                        <div class="flex items-center gap-4">
+                            <span id="mainEmoji" class="text-6xl"></span>
+                            <div>
+                                <p id="mainEmotion" class="text-4xl font-bold"></p>
+                                <p id="mainConfidence" class="text-lg opacity-90"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- All Predictions -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">All Emotions Detected</h3>
+                        <div id="allEmotions" class="space-y-3"></div>
+                    </div>
+
+                    <!-- Try Another Button -->
+                    <button onclick="reset()" class="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 px-6 rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all shadow-lg font-medium">
+                        🔄 Try Another Image
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>Built with FastAPI + HTML + SWIN Transformer 🚀</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let videoStream = null;
+
+        const emotionEmojis = {
+            'Happy': '😊',
+            'Sad': '😢',
+            'Angry': '😠',
+            'Surprise': '😲',
+            'Fear': '😨',
+            'Disgust': '🤢',
+            'Neutral': '😐'
+        };
+
+        const emotionColors = {
+            'Happy': 'bg-yellow-500',
+            'Sad': 'bg-blue-500',
+            'Angry': 'bg-red-500',
+            'Surprise': 'bg-purple-500',
+            'Fear': 'bg-gray-500',
+            'Disgust': 'bg-green-500',
+            'Neutral': 'bg-slate-500'
+        };
+
+        function uploadImage() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    showPreview(e.target.result);
+                    analyzeFace(file);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function startCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
+                });
+                const video = document.getElementById('videoElement');
+                video.srcObject = videoStream;
+                
+                document.getElementById('initialButtons').style.display = 'none';
+                document.getElementById('cameraView').style.display = 'block';
+                hideError();
+            } catch (err) {
+                showError('Camera access denied. Please allow camera permissions.');
+            }
+        }
+
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            document.getElementById('cameraView').style.display = 'none';
+            document.getElementById('initialButtons').style.display = 'block';
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('videoElement');
+            const canvas = document.getElementById('canvas');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+                showPreview(canvas.toDataURL('image/jpeg'));
+                stopCamera();
+                analyzeFace(file);
+            }, 'image/jpeg');
+        }
+
+        function showPreview(imageSrc) {
+            document.getElementById('initialButtons').style.display = 'none';
+            document.getElementById('previewSection').style.display = 'block';
+            document.getElementById('previewImage').src = imageSrc;
+        }
+
+        async function analyzeFace(file) {
+            document.getElementById('loadingIndicator').style.display = 'flex';
+            document.getElementById('resultsSection').style.display = 'none';
+            hideError();
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_URL}/api/v1/predict`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Prediction failed. Is the backend running?');
+                }
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+
+        function displayResults(data) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+
+            // Main prediction
+            const emotion = data.prediction.emotion;
+            const confidence = data.prediction.confidence;
+            
+            document.getElementById('mainEmoji').textContent = emotionEmojis[emotion] || '😊';
+            document.getElementById('mainEmotion').textContent = emotion;
+            document.getElementById('mainConfidence').textContent = `${(confidence * 100).toFixed(1)}% confident`;
+
+            // All emotions
+            const allEmotionsDiv = document.getElementById('allEmotions');
+            allEmotionsDiv.innerHTML = '';
+            
+            data.all_predictions.forEach(item => {
+                const emotionDiv = document.createElement('div');
+                emotionDiv.className = 'space-y-2';
+                emotionDiv.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">${emotionEmojis[item.emotion] || '😊'}</span>
+                            <span class="text-sm font-medium text-gray-700">${item.emotion}</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-600">${(item.confidence * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div class="h-full ${emotionColors[item.emotion] || 'bg-gray-500'} transition-all duration-700 ease-out" style="width: ${item.confidence * 100}%"></div>
+                    </div>
+                `;
+                allEmotionsDiv.appendChild(emotionDiv);
+            });
+        }
+
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function reset() {
+            document.getElementById('initialButtons').style.display = 'block';
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('fileInput').value = '';
+            hideError();
+            stopCamera();
+        }
+    </script>
+</body>
+</html>
