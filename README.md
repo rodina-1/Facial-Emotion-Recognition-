@@ -148,7 +148,9 @@ Hardware: NVIDIA T4 GPU
 
 <img width="350" height="158" alt="image" src="https://github.com/user-attachments/assets/4b3b0855-20b2-4f93-809e-b93ae2019247" />
 
+
  **Per-Class Accuracy & F1:**
+ 
  <img width="464" height="219" alt="image" src="https://github.com/user-attachments/assets/835f9ec9-4236-4c7e-a9df-902b8a1e94af" />
 
  
