@@ -19,23 +19,21 @@ The final deployed model is based on **Swin Transformer**, due to its superior p
 5. [Model Architectures](#model-architectures)  
 6. [Training Setup](#training-setup)  
 7. [Results](#results)  
-8. [Confusion Matrix & Explainability](#confusion-matrix--explainability)  
-9. [How to Run](#how-to-run)  
-10. [Project Structure](#project-structure)  
-11. [Team Contributions](#team-contributions)  
-12. [Technologies](#technologies)  
-13. [License](#license)
+8. [Confusion Matrix & Explainability](#confusion-matrix--explainability)    
+9. [Team Contributions](#team-contributions)
+10. [Technologies Used](#technologies_used)
+11. [License](#license)
 
 ---
 
 ##  **Project Description**
 
-This project focuses on classifying facial expressions into **seven emotion categories**:(0= 'Surprise',1= 'Fear', 2= 'Disgust', 3= 'Happy', 4= 'Sad', 5= 'Angry', 6= 'Neutral')
+This project focuses on classifying facial expressions into **seven emotion categories**:(0= 'angry',1= 'disgust', 2= 'fear', 3= 'happy', 4= 'neutral', 5= 'sad', 6= 'surprise')
 
 
 We developed and compared two models:
 
-- **Baseline CNN** → helped understand dataset behavior but achieved limited accuracy (~62%).  
+- **Baseline CNN** → helped understand dataset behavior but achieved limited accuracy (~74.5%).  
 - **Swin Transformer** → significantly improved performance and became the final chosen model.
 
 The project includes:
@@ -44,18 +42,18 @@ The project includes:
 - Preprocessing & Data Augmentation  
 - Model training & validation  
 - Evaluation metrics  
-- Explainability using **Grad-CAM**  
 - GUI deployment using **Streamlit**
 
 ---
 
 ##  **Dataset**
 
-- **Source:** RAF-DB (Kaggle)  
-- **Link:** https://www.kaggle.com/datasets/shuvoalok/raf-db-dataset  
-- **Image size:** 48×48 grayscale  
-- **Train size:** 12,271 images  
-- **Test size:** 3,068 images  
+- **Source:** Facial Emotion Recognition Dataset (Kaggle)  
+- **Link:** https://www.kaggle.com/datasets/fahadullaha/facial-emotion-recognition-dataset  
+- **Image size:** 96*96 RGB  
+- **Train size:** 34844 image (70.0%)
+- **Validation size:**  7467 image (15.0%) 
+- **Test size:** 7468 image (15.0%)  
 - **Dataset notes:**  
   - Faces are centered and pre-aligned  
   - Class distribution is imbalanced (Happy is dominant)
@@ -63,30 +61,34 @@ The project includes:
 ---
 
 ##  **Project Pipeline**
-Data Loading → Preprocessing → Augmentation → Model Training (CNN/Swin) → Evaluation → Grad-CAM → Deployment (Streamlit GUI)
+Data Loading → Preprocessing → Augmentation → Model Training (CNN/Swin) → Evaluation  → Deployment (Streamlit GUI)
 
 ---
 
 ##  **Preprocessing**
-
+For CNN
 Using `torchvision.transforms`:
 
 python
 train_transforms = transforms.Compose([
-    transforms.Grayscale(num_output_channels=1),
-    transforms.Resize((48, 48)),
+    transforms.Resize((96, 96)),
+    transforms.Grayscale(num_output_channels=3),
     transforms.RandomHorizontalFlip(),
-    transforms.RandomRotation(10),
     transforms.ToTensor(),
-    transforms.Normalize([0.5], [0.5])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
 ])
 
-test_transforms = transforms.Compose([
-    transforms.Grayscale(num_output_channels=1),
-    transforms.Resize((48, 48)),
-    ToTensor(),
-    Normalize([0.5], [0.5])
+
+# Validation & Test transforms (without augmentation)
+val_test_transforms = transforms.Compose([
+    transforms.Resize((96, 96)),
+    transforms.Grayscale(num_output_channels=3), 
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225])
 ])
+
 ✔ Normalization
 
 ✔ Data Augmentation
@@ -96,6 +98,7 @@ test_transforms = transforms.Compose([
 ✔ Image resizing
 
 ##  **Model Architectures**
+
 1️⃣ Baseline CNN (Initial Experiment)
 
 -Simple convolutional layers
@@ -106,13 +109,14 @@ test_transforms = transforms.Compose([
 
 -Fully connected head
 
--Achieved ~62% accuracy
+-Achieved ~74.5% accuracy
 
 ->The CNN served as a baseline but didn’t generalize well due to dataset complexity.
 
 2️⃣ Swin Transformer (Final Model)
 
 Swin Transformer introduces:
+
 ✔ Hierarchical representation
 
 ✔ Shifted window mechanism
@@ -124,93 +128,90 @@ Swin Transformer introduces:
 ->This model dramatically improved accuracy and per-class metrics.
 
 ##  **Training Setup**
+For Swin transform
 
 Epochs: 60
 Batch size: 64
-Optimizer: Adam
+Optimizer: AdamW
 Loss: CrossEntropyLoss
-Scheduler: (if used)
+Scheduler: lr_scheduler.CosineAnnealingLR
 Early Stopping: patience = 10
 Checkpointing: every 5 epochs
 Hardware: NVIDIA T4 GPU
 
 ## **Results**
 
-<img width="603" height="448" alt="image" src="https://github.com/user-attachments/assets/411324c9-d4a4-4010-995d-a916c03e41de" />
+<img width="680" height="368" alt="image" src="https://github.com/user-attachments/assets/b38bc09d-277b-43c0-a6eb-d7348ab151f2" />
 
-Most Confused Emotion Pairs
 
-Happy → Neutral : 47
+**Most Confused Emotion Pairs**
 
-Neutral → Sad : 46
+<img width="350" height="158" alt="image" src="https://github.com/user-attachments/assets/4b3b0855-20b2-4f93-809e-b93ae2019247" />
 
-Sad → Neutral : 38
+ **Per-Class Accuracy & F1:**
+ <img width="464" height="219" alt="image" src="https://github.com/user-attachments/assets/835f9ec9-4236-4c7e-a9df-902b8a1e94af" />
 
-Disgust → Neutral : 20
-
+ 
 ## **Confusion Matrix & Explainability**
 
 We generated:
 
 ✔ Confusion Matrix
 
-<img width="935" height="790" alt="image" src="https://github.com/user-attachments/assets/1e63d4ac-5d04-46ed-9ca5-5c13e30d3ae6" />
+<img width="935" height="790" alt="image" src="https://github.com/user-attachments/assets/409632d9-8d30-4592-8ca9-48a1113544b5" />
 
 
-✔ Grad-CAM heatmaps
-
-→ Showing which facial regions the model focuses on when predicting emotions.
-
-This enhances model interpretability and supports academic discussion.
 
 ## **Team Contributions**
 **Rodina Hesham**
 
--Data Cleaning
+-Led the initial data understanding phase: explored the dataset, analyzed class definitions, and handled dataset loading and structuring.
 
--Preprocessing
+-Performed all preprocessing steps including normalization, resizing, augmentation, grayscale-to-RGB conversion, and data preparation for model training.
 
--Augmentation
+-Conducted data visualization such as class distribution plots and class-weight analysis to understand dataset imbalance.
 
--Dataset Splitting
+-Generated sample visualizations to validate the effectiveness of preprocessing steps.
 
--Exploratory Data Analysis
-
+-Developed both the frontend and backend components of the project, ensuring a complete and functional system pipeline from data preprocessing to user interaction.
 
 **Tasneem Yasser**
 
--CNN model building
+-Designed, implemented, and optimized the CNN baseline model, establishing the project’s first benchmark and helping the team understand dataset complexity and model behavior.
 
--Swin Transformer fine-tuning
+-Developed a robust training loop including forward pass, backward pass, gradient updates, and performance logging — ensuring stable and reproducible training.
 
--Training loop
+-Configured the loss function, optimizer, and hyperparameters, experimenting with several configurations to improve the initial model’s accuracy and generalization.
 
--Loss & optimizer configuration
+-Performed early testing, debugging, and validation of the CNN model pipeline, laying the technical foundation for later advanced models.
+
+-Conducted architectural adjustments and tuning attempts to maximize the CNN model’s performance before moving to transformer-based methods.
 
 **Mai Hussein**
-Evaluation metrics
 
--Accuracy
+-Led the full evaluation and performance analysis phase by computing key metrics including Accuracy, Precision, Recall, and F1-score for both CNN and Swin Transformer models.
 
--Precision
+-Generated and interpreted the Confusion Matrix, identifying the most confused emotion pairs and providing insights that guided model improvement.
 
--Recall
+-Conducted comparative evaluation between baseline and advanced models, highlighting strengths and weaknesses across different emotion categories.
 
--F1-score
+-Prepared detailed analysis reports and supported the understanding of class-wise performance, model fairness, and possible dataset-related issues.
 
--Confusion Matrix
+-Contributed to validating the final model’s reliability from an analytical and statistical perspective.
 
--Grad-CAM explainability
+
 
 **Maryhan Sabry**
 
--Deployment
+-Implemented and fine-tuned a Swin Transformer model, handling model configuration, pretrained weights, and adapting the architecture to the project’s classification task.
 
--Streamlit GUI
+-Designed an advanced training and optimization strategy for Swin, including tuning hyperparameters, stabilizing training, and improving model accuracy.
 
--User interface
+-Built a complete model inference pipeline, covering preprocessing, forward inference, prediction decoding, and performance handling for large input images.
 
--Model inference pipeline
+-Developed a fully interactive Streamlit GUI, enabling users to upload images, run predictions, and view results through a clean and intuitive interface.
+
+-Integrated the Swin Transformer with the Streamlit application, ensuring seamless communication between the model backend and the user-facing frontend.
 
 
 ## **Technologies Used**
